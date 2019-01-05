@@ -1,4 +1,5 @@
 [![PyPI version](https://badge.fury.io/py/HAP-python.svg)](https://badge.fury.io/py/HAP-python) [![Build Status](https://travis-ci.org/ikalchev/HAP-python.svg?branch=master)](https://travis-ci.org/ikalchev/HAP-python) [![codecov](https://codecov.io/gh/ikalchev/HAP-python/branch/master/graph/badge.svg)](https://codecov.io/gh/ikalchev/HAP-python) [![Documentation Status](https://readthedocs.org/projects/hap-python/badge/?version=latest)](http://hap-python.readthedocs.io/en/latest/?badge=latest)
+
 # HAP-python
 
 HomeKit Accessory Protocol implementation in python 3.
@@ -15,11 +16,12 @@ Stop it by hitting Ctrl+C.
 There are example accessories in [the accessories folder](pyhap/accessories).
 
 ## Table of Contents
-1. [API](#API)
-2. [Installation](#Installation)
-3. [Integrating non-compatible devices](#HttpAcc)
-4. [Run at boot (and a Switch to shutdown your device)](#AtBoot)
-5. [Notice](#Notice)
+
+1.  [API](#API)
+2.  [Installation](#Installation)
+3.  [Integrating non-compatible devices](#HttpAcc)
+4.  [Run at boot (and a Switch to shutdown your device)](#AtBoot)
+5.  [Notice](#Notice)
 
 ## Installation <a name="Installation"></a>
 
@@ -29,18 +31,18 @@ box, you can install it manually or just use an older version of HAP-python.
 
 As a prerequisite, you will need Avahi/Bonjour installed (due to zeroconf package).
 On a Raspberry Pi, you can get it with:
-```
-$ sudo apt-get install libavahi-compat-libdnssd-dev
-```
+
+    $ sudo apt-get install libavahi-compat-libdnssd-dev
+
 `avahi-utils` may also fit the bill. Then, you can install with `pip3` (you will need `sudo` or `--user` for the install):
+
 ```sh
 $ pip3 install HAP-python[QRCode]
 ```
 
 This will install HAP-python in your python packages, so that you can import it as `pyhap`. To uninstall, just do:
-```
-$ pip3 uninstall HAP-python
-```
+
+    $ pip3 uninstall HAP-python
 
 ## API <a name="API"></a>
 
@@ -100,11 +102,13 @@ class TemperatureSensor(Accessory):
 ```
 
 ## Integrating non-compatible devices <a name="HttpAcc"></a>
+
 HAP-python may not be available for many IoT devices. For them, HAP-python allows devices
 to be bridged by means of communicating with an HTTP server - the [HttpBridge](pyhap/accessories/Http.py). You can add as many remote accessories as you like.
 
 For example, the bellow snippet creates an Http Accessory that listens on port 51800
 for updates on the TemperatureSensor service:
+
 ```python
 import pyhap.util as util
 import pyhap.loader as loader
@@ -135,8 +139,10 @@ http_bridge.add_accessory(remote_accessory)
 driver = AccessoryDriver(http_bridge, 51826)
 driver.start()
 ```
+
 Now, remote accessories can do an HTTP POST to the address of the device where the
 accessory is running (port 51111) with the following content:
+
 ```json
 {
     "aid": 2,
@@ -148,32 +154,33 @@ accessory is running (port 51111) with the following content:
     }
 }
 ```
+
 This will update the value of the characteristic "CurrentTemperature" to 20 degrees C
 and "StatusLowBattery" to `true`.
 Needless to say the communication to the Http Bridge poses a security risk, so
 keep that in mind.
 
 ## Run at boot <a name="AtBoot"></a>
+
 This is a quick way to get `HAP-python` to run at boot on a Raspberry Pi. It is recommended
 to turn on "Wait for network" in `raspi-config`. If this turns to be unreliable, see
 [this](https://www.raspberrypi.org/forums/viewtopic.php?f=66&t=187225).
 
 Copy the below in `/etc/systemd/system/HAP-python.service` (needs sudo).
-```
-[Unit]
-Description = HAP-python daemon
-Wants = pigpiod.service  # Remove this if you don't depend on pigpiod
-After = local-fs.target network-online.target pigpiod.service
 
-[Service]
-User = lesserdaemon  # It's a good idea to use some unprivileged system user
-# Script starting HAP-python, e.g. main.py
-# Be careful to set any paths you use, e.g. for persisting the state.
-ExecStart = /usr/bin/python3 /home/lesserdaemon/.hap-python/hap-python.py
+    [Unit]
+    Description = HAP-python daemon
+    Wants = pigpiod.service  # Remove this if you don't depend on pigpiod
+    After = local-fs.target network-online.target pigpiod.service
 
-[Install]
-WantedBy = multi-user.target
-```
+    [Service]
+    User = lesserdaemon  # It's a good idea to use some unprivileged system user
+    # Script starting HAP-python, e.g. main.py
+    # Be careful to set any paths you use, e.g. for persisting the state.
+    ExecStart = /usr/bin/python3 /home/lesserdaemon/.hap-python/hap-python.py
+
+    [Install]
+    WantedBy = multi-user.target
 
 Test that everything is fine by doing:
 
@@ -200,6 +207,7 @@ it shutdowns and halts the Pi. This allows you to safely unplug it.
 
 For the above to work, you need to enable passwordless `/sbin/shutdown` to whichever
 user is running `HAP-python`. For example, do:
+
 ```sh
 $ sudo visudo # and add the line: "<hap-user> ALL=NOPASSWD: /sbin/shutdown".
 ```
